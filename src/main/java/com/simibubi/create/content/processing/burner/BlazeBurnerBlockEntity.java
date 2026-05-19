@@ -8,6 +8,7 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllTags.AllItemTags;
 import com.simibubi.create.api.data.datamaps.BlazeBurnerFuel;
+import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.api.registry.CreateDataMaps;
 import com.simibubi.create.content.fluids.tank.FluidTankBlock;
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
@@ -15,6 +16,8 @@ import com.simibubi.create.content.processing.basin.BasinBlock;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
+import com.simibubi.create.foundation.item.TooltipHelper;
+import com.simibubi.create.foundation.utility.CreateLang;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import net.createmod.catnip.animation.LerpedFloat;
@@ -28,6 +31,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
@@ -45,7 +50,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-public class BlazeBurnerBlockEntity extends SmartBlockEntity {
+public class BlazeBurnerBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
 
 	public static final int MAX_HEAT_CAPACITY = 10000;
 	public static final int INSERTION_THRESHOLD = 500;
@@ -102,8 +107,11 @@ public class BlazeBurnerBlockEntity extends SmartBlockEntity {
 		if (isCreative)
 			return;
 
-		if (remainingBurnTime > 0)
+		if (remainingBurnTime > 0) {
 			remainingBurnTime--;
+			if (remainingBurnTime % 20 == 0)
+				notifyUpdate();
+		}
 
 		if (activeFuel == FuelType.NORMAL)
 			updateBlockState();
@@ -204,6 +212,63 @@ public class BlazeBurnerBlockEntity extends SmartBlockEntity {
 		goggles = compound.contains("Goggles");
 		hat = compound.contains("TrainHat");
 		super.read(compound, registries, clientPacket);
+	}
+
+	@Override
+	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+		CreateLang.translate("tooltip.blaze_burner.header")
+			.forGoggles(tooltip);
+		
+		CreateLang.translate("tooltip.blaze_burner.fuel_capacity")
+			.style(ChatFormatting.GRAY)
+			.forGoggles(tooltip);
+
+		if (isCreative) {
+			CreateLang.text(TooltipHelper.makeProgressBar(3, 3))
+				.add(CreateLang.translate("tooltip.blaze_burner.infinite"))
+				.style(ChatFormatting.GOLD)
+				.forGoggles(tooltip, 1);
+			return true;
+		}
+
+		if (activeFuel == FuelType.NONE) {
+			CreateLang.text(TooltipHelper.makeProgressBar(3, 0))
+				.add(CreateLang.translate("tooltip.blaze_burner.empty"))
+				.style(ChatFormatting.DARK_GRAY)
+				.forGoggles(tooltip, 1);
+			return true;
+		}
+
+		// Divide by 20 to convert burn time to seconds
+		// Minecraft runs at 20 ticks per second (without changing tick speed)
+		int seconds = remainingBurnTime / 20;
+		int maxSeconds = MAX_HEAT_CAPACITY / 20;
+		int percent = (int) (remainingBurnTime / (float) MAX_HEAT_CAPACITY * 100);
+
+		FuelDisplay display = FuelDisplay.of(percent);
+
+		CreateLang.text(TooltipHelper.makeProgressBar(3, display.filled()))
+			.add(CreateLang.translate(display.fuel_level())
+				.text(" (" + percent + "%)"))
+			.style(display.color())
+			.forGoggles(tooltip, 1);
+
+		CreateLang.translate("tooltip.blaze_burner.remaining")
+			.style(ChatFormatting.GRAY)
+			.forGoggles(tooltip);
+
+		CreateLang.number(seconds)
+			.space()
+			.add(CreateLang.translate("generic.unit.seconds"))
+			.style(display.color())
+			.text(ChatFormatting.GRAY, " / ")
+			.add(CreateLang.number(maxSeconds)
+				.space()
+				.add(CreateLang.translate("generic.unit.seconds"))
+				.style(ChatFormatting.DARK_GRAY))
+			.forGoggles(tooltip, 1);
+
+		return true;
 	}
 
 	public BlazeBurnerBlock.HeatLevel getHeatLevelFromBlock() {
@@ -401,6 +466,14 @@ public class BlazeBurnerBlockEntity extends SmartBlockEntity {
 
 			level.addParticle(soulFlame ? ParticleTypes.SOUL_FIRE_FLAME : ParticleTypes.FLAME, v.x, v.y, v.z, m.x, m.y,
 				m.z);
+		}
+	}
+
+	private record FuelDisplay(int filled, ChatFormatting color, String fuel_level) {
+		static FuelDisplay of(int percent) {
+			if (percent >= 75) return new FuelDisplay(3, ChatFormatting.GREEN,  "tooltip.blaze_burner.fuel_level.high");
+			if (percent >= 25) return new FuelDisplay(2, ChatFormatting.YELLOW, "tooltip.blaze_burner.fuel_level.medium");
+			return new FuelDisplay(1, ChatFormatting.RED, "tooltip.blaze_burner.fuel_level.low");
 		}
 	}
 
