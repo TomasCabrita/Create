@@ -643,6 +643,14 @@
 	"create.tooltip.pulse_extender.header": "Pulse Extender Information",
 	"create.tooltip.pulse_extender.remaining": "Remaining Pulse Time",
 
+	"create.tooltip.encased_fan.header": "Encased Fan:",
+	"create.tooltip.encased_fan.not_spinning": "Not spinning",
+	"create.tooltip.encased_fan.direction": "Direction",
+	"create.tooltip.encased_fan.outward": "Outward",
+	"create.tooltip.encased_fan.inward": "Inward",
+	"create.tooltip.encased_fan.range": "Range",
+	"create.tooltip.encased_fan.blocks": "blocks",
+
 	"create.tooltip.speedRequirement": "Speed Requirement:",
 	"create.tooltip.speedRequirement.none": "None",
 	"create.tooltip.speedRequirement.slow": "Slow",

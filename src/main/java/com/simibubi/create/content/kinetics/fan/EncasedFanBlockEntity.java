@@ -9,6 +9,9 @@ import com.simibubi.create.content.logistics.chute.ChuteBlockEntity;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.infrastructure.config.AllConfigs;
+import com.simibubi.create.foundation.utility.CreateLang;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
@@ -149,6 +152,44 @@ public class EncasedFanBlockEntity extends KineticBlockEntity implements IAirCur
 		}
 
 		airCurrent.tick();
+	}
+
+	@Override
+	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+		super.addToGoggleTooltip(tooltip, isPlayerSneaking);
+		Direction flowDirection = getAirFlowDirection();
+
+		CreateLang.translate("tooltip.encased_fan.header")
+			.forGoggles(tooltip);
+
+		if (flowDirection == null) {
+			CreateLang.translate("tooltip.encased_fan.not_spinning")
+				.style(ChatFormatting.DARK_GRAY)
+				.forGoggles(tooltip, 1);
+			return true;
+		}
+
+		Direction facing = getBlockState().getValue(EncasedFanBlock.FACING);
+		boolean blowingOutward = flowDirection == facing;
+
+		CreateLang.translate("tooltip.encased_fan.direction")
+			.style(ChatFormatting.GRAY)
+			.text(": ")
+			.add(CreateLang.translate(blowingOutward
+					? "tooltip.encased_fan.outward"
+					: "tooltip.encased_fan.inward")
+				.style(blowingOutward ? ChatFormatting.GREEN : ChatFormatting.BLUE))
+			.forGoggles(tooltip, 1);
+
+
+		CreateLang.translate("tooltip.encased_fan.range")
+			.style(ChatFormatting.GRAY)
+			.text(": ")
+			.add(CreateLang.text(String.format("%.1f", airCurrent.maxDistance))
+				.style(ChatFormatting.AQUA))
+			.forGoggles(tooltip, 1);
+
+		return true;
 	}
 
 }
