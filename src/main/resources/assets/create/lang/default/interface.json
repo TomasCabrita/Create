@@ -628,6 +628,15 @@
 	"create.tooltip.keyShift": "Shift",
 	"create.tooltip.keyCtrl": "Ctrl",
 
+	"create.tooltip.blaze_burner.empty": "No fuel",
+	"create.tooltip.blaze_burner.fuel_capacity": "Fuel Capacity",
+	"create.tooltip.blaze_burner.fuel_level.high": "High",
+	"create.tooltip.blaze_burner.fuel_level.medium": "Medium",
+	"create.tooltip.blaze_burner.fuel_level.low": "Low",
+	"create.tooltip.blaze_burner.header": "Blaze Burner Information",
+	"create.tooltip.blaze_burner.infinite": "Infinite",
+	"create.tooltip.blaze_burner.remaining": "Remaining Burn Time",
+
 	"create.tooltip.speedRequirement": "Speed Requirement:",
 	"create.tooltip.speedRequirement.none": "None",
 	"create.tooltip.speedRequirement.slow": "Slow",
