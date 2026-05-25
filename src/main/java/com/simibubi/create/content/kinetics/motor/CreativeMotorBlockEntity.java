@@ -21,6 +21,7 @@ import net.createmod.catnip.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -112,6 +113,14 @@ public class CreativeMotorBlockEntity extends GeneratingKineticBlockEntity {
 
 	}
 
+	@Override
+	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+		CreateLang.translate("tooltip.creative_motor.header")
+			.forGoggles(tooltip);
+		addToGoggleRotationDirectionTooltip(tooltip);
+		return true;
+	}
+	
 	@Override
 	public void invalidate() {
 		super.invalidate();

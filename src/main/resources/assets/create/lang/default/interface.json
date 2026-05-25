@@ -251,6 +251,9 @@
 	"create.gui.goggles.basin_contents": "Basin Contents:",
 	"create.gui.goggles.fluid_container": "Fluid Container Info:",
 	"create.gui.goggles.fluid_container.capacity": "Capacity: ",
+	"create.gui.goggles.rotation_direction": "Rotation Direction: ",
+	"create.gui.goggles.rotation_direction.clockwise": "\u27f3 Clockwise",
+	"create.gui.goggles.rotation_direction.counter_clockwise": "\u27f2 Counter-Clockwise",
 
 	"create.gui.assembly.exception": "This Contraption was unable to assemble:",
 	"create.gui.assembly.exception.unmovableBlock": "Unmovable Block (%4$s) at [%1$s,%2$s,%3$s]",
@@ -636,6 +639,11 @@
 	"create.tooltip.blaze_burner.header": "Blaze Burner Information",
 	"create.tooltip.blaze_burner.infinite": "Infinite",
 	"create.tooltip.blaze_burner.remaining": "Remaining Burn Time",
+
+	"create.tooltip.cogwheel.header": "Cogwheel Information",
+	"create.tooltip.creative_motor.header": "Creative Motor Information",
+	"create.tooltip.gantry_shaft.header": "Gantry Shaft Information",
+	"create.tooltip.shaft.header": "Shaft Information",
 
 	"create.tooltip.pulse.until_next_pulse": "Time Until Next Pulse",
 	"create.tooltip.pulse_timer.header": "Pulse Timer Information",

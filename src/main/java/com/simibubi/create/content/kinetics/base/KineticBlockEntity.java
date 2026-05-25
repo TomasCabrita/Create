@@ -468,6 +468,21 @@ public class KineticBlockEntity extends SmartBlockEntity implements IHaveGoggleI
 
 	}
 
+	protected void addToGoggleRotationDirectionTooltip(List<Component> tooltip) {
+		float speed = getSpeed();
+		if (speed == 0) return;
+		
+		CreateLang.translate("gui.goggles.rotation_direction")
+			.style(GRAY)
+			.forGoggles(tooltip);
+
+		CreateLang.translate(speed > 0
+				? "gui.goggles.rotation_direction.clockwise"
+				: "gui.goggles.rotation_direction.counter_clockwise")
+			.style(speed > 0 ? ChatFormatting.GREEN : ChatFormatting.BLUE)
+			.forGoggles(tooltip, 1);
+	}
+
 	protected void addStressImpactStats(List<Component> tooltip, float stressAtBase) {
 		CreateLang.translate("tooltip.stressImpact")
 			.style(GRAY)
