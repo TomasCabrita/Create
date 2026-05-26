@@ -1,5 +1,7 @@
 package com.simibubi.create.infrastructure.gametest.tests;
 
+import java.util.List;
+
 import static com.simibubi.create.infrastructure.gametest.CreateGameTestHelper.TICKS_PER_SECOND;
 
 import com.simibubi.create.AllBlockEntityTypes;
@@ -11,6 +13,7 @@ import com.simibubi.create.infrastructure.gametest.GameTestGroup;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
+import net.minecraft.network.chat.Component;
 
 @GameTestGroup(path = "goggles_tooltip")
 public class TestGogglesTooltip {
@@ -26,16 +29,33 @@ public class TestGogglesTooltip {
     @GameTest(template = "blaze_burner_empty")
     public static void noFuelTooltip(CreateGameTestHelper helper) {
         BlazeBurnerBlockEntity burner = getBurner(helper);
+        String testType = "Blaze Burner Empty";
 
         // Check if the blaze burner is in creative mode (it should not be)
         if (burner.isCreative())
-            helper.fail("Blaze Burner Empty: Should not be in creative mode for this test");
+            helper.fail(testType + ": Should not be in creative mode for this test");
         // Check if the blaze burner has no fuel
         if (burner.getHeatLevelFromBlock() != HeatLevel.SMOULDERING)
-            helper.fail("Blaze Burner Empty: Should not have fuel for this test. Expected heat level: SMOULDERING, got: " + burner.getHeatLevelFromBlock());
+            helper.fail(testType + ": Should not have fuel for this test. Expected heat level: SMOULDERING, got: " + burner.getHeatLevelFromBlock());
         // Check if active fuel is NONE
         if (burner.getActiveFuel() != FuelType.NONE)
-            helper.fail("Blaze Burner Empty: Should not have fuel for this test. Expected fuel type: NONE, got: " + burner.getActiveFuel());
+            helper.fail(testType + ": Should not have fuel for this test. Expected fuel type: NONE, got: " + burner.getActiveFuel());
+
+        // Create the tooltip and call the method addToGoggleTooltip to populate it
+        List<Component> tooltip = new java.util.ArrayList<>();
+        boolean result = burner.addToGoggleTooltip(tooltip, false);
+
+        // Assert that the tooltip contains the expected information for an empty blaze burner
+        assertTooltipContains(helper, tooltip, result, testType,
+        "create.tooltip.blaze_burner.header",
+                    "create.tooltip.blaze_burner.fuel_capacity",
+                    "create.tooltip.blaze_burner.empty");
+
+        // Assert that the tooltip does not contain the "Remaining Burn Time" text
+        String fullText = collectTooltipText(tooltip);
+        String remaining = Component.translatable("create.tooltip.blaze_burner.remaining").getString();
+        if (fullText.contains(remaining))
+            helper.fail(testType + ": Tooltip should not contain \"" + remaining + "\"");
 
         helper.succeed();
     }
@@ -43,13 +63,30 @@ public class TestGogglesTooltip {
     @GameTest(template = "blaze_burner_infinite")
     public static void infiniteFuelTooltip(CreateGameTestHelper helper) {
         BlazeBurnerBlockEntity burner = getBurner(helper);
+        String testType = "Blaze Burner Infinite";
 
         // Check if the blaze burner is in creative mode
         if (!burner.isCreative())
-            helper.fail("Blaze Burner Infinite: Should be in creative mode for this test");
+            helper.fail(testType + ": Should be in creative mode for this test");
         // Check if the remaining burn time is 0 for infinite fuel
         if (burner.getRemainingBurnTime() != 0)
-            helper.fail("Blaze Burner Infinite: Remaining burn time should be 0 for this test. Got: " + burner.getRemainingBurnTime());
+            helper.fail(testType + ": Remaining burn time should be 0 for this test. Got: " + burner.getRemainingBurnTime());
+
+        // Create the tooltip and call the method addToGoggleTooltip to populate it
+        List<Component> tooltip = new java.util.ArrayList<>();
+        boolean result = burner.addToGoggleTooltip(tooltip, false);
+
+        // Assert that the tooltip contains the expected information for an infinite fuel blaze burner
+        assertTooltipContains(helper, tooltip, result, testType,
+                    "create.tooltip.blaze_burner.header",
+                    "create.tooltip.blaze_burner.fuel_capacity",
+                    "create.tooltip.blaze_burner.infinite");
+
+            // Assert that the tooltip does not contain the "Remaining Burn Time" text
+        String fullText = collectTooltipText(tooltip);
+        String remaining = Component.translatable("create.tooltip.blaze_burner.remaining").getString();
+        if (fullText.contains(remaining))
+            helper.fail(testType + ": Tooltip should not contain \"" + remaining + "\"");
 
         helper.succeed();
     }
@@ -57,15 +94,26 @@ public class TestGogglesTooltip {
     @GameTest(template = "blaze_burner_normal", timeoutTicks = (FUEL_DECAY_CHECK_SECONDS + 2) * TICKS_PER_SECOND)
     public static void normalFuelTooltipAndDecay(CreateGameTestHelper helper) {
         BlazeBurnerBlockEntity burner = getBurner(helper);
+        String testType = "Blaze Burner Normal";
 
         // Check if the blaze burner is in creative mode (it should not be)
         if (burner.isCreative())
-            helper.fail("Blaze Burner Normal: Should not be in creative mode for this test");
+            helper.fail(testType + ": Should not be in creative mode for this test");
         // Check if the blaze burner has normal fuel
         if (burner.getActiveFuel() != FuelType.NORMAL)
-            helper.fail("Blaze Burner Normal: Should have normal fuel for this test. Expected fuel type: NORMAL, got: " + burner.getActiveFuel());
+            helper.fail(testType + ": Should have normal fuel for this test. Expected fuel type: NORMAL, got: " + burner.getActiveFuel());
         if (burner.getRemainingBurnTime() <= 0)
-            helper.fail("Blaze Burner Normal: Remaining burn time should be greater than 0 for this test");
+            helper.fail(testType + ": Remaining burn time should be greater than 0 for this test");
+
+        // Create the tooltip and call the method addToGoggleTooltip to populate it
+        List<Component> tooltip = new java.util.ArrayList<>();
+        boolean result = burner.addToGoggleTooltip(tooltip, false);
+
+        // Assert that the tooltip contains the expected information for a normal fuel blaze burner
+        assertTooltipContains(helper, tooltip, result, testType,
+            "create.tooltip.blaze_burner.header",
+            "create.tooltip.blaze_burner.fuel_capacity",
+            "create.tooltip.blaze_burner.remaining");
 
         int initialBurnTime = burner.getRemainingBurnTime();
 
@@ -78,7 +126,7 @@ public class TestGogglesTooltip {
             int minExpected = FUEL_DECAY_CHECK_SECONDS * TICKS_PER_SECOND - 1;
 
             if (decayed < minExpected)
-                helper.fail("Blaze Burner Normal: Burn time decayed only " + decayed
+                helper.fail(testType + ": Burn time decayed only " + decayed
                     + " ticks, when at least " + minExpected + " ticks were expected");
 
             helper.succeed();
@@ -87,6 +135,39 @@ public class TestGogglesTooltip {
 
 
     // ===== Helper Methods =====
+
+    // Helper method to collect tooltip text into a single string for easier searching
+    private static String collectTooltipText(List<Component> tooltip) {
+        StringBuilder sb = new StringBuilder();
+        // Concatenate all tooltip components into a single string
+        for (Component component : tooltip)
+            sb.append(component.getString()).append(" ");
+        return sb.toString();
+    }
+
+    // Helper method to assert that the tooltip contains the expected text based on the translation key
+    private static void assertTooltipContains(CreateGameTestHelper helper, List<Component> tooltip,
+        boolean result, String testType, String... translationKeys) {
+
+        // Check if addToGoggleTooltip returned true and that the tooltip is not empty
+        if (!result)
+            helper.fail(testType + ": addToGoggleTooltip() returned false");
+        if (tooltip.isEmpty())
+            helper.fail(testType + ": tooltip is empty");
+
+        // Collect the full tooltip text for easier searching
+        String fullText = collectTooltipText(tooltip);
+
+        // Check that each expected message is present in the tooltip
+        // Note: Used Component.translatable to get the expected text based on the translation key
+        for (String key : translationKeys) {
+            String expected = Component.translatable(key).getString();
+
+            if (!fullText.contains(expected))
+                helper.fail(testType + ": tooltip does not contain \"" + expected
+                    + "\". Content: " + fullText);
+        }
+    }
 
     private static BlazeBurnerBlockEntity getBurner(CreateGameTestHelper helper) {
         return helper.getBlockEntity(AllBlockEntityTypes.HEATER.get(), BURNER_POS);
