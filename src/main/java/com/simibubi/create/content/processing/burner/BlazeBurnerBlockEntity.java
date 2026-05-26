@@ -235,6 +235,7 @@ public class BlazeBurnerBlockEntity extends SmartBlockEntity implements IHaveGog
             }
 
             tooltip.add(Component.translatable("create.tooltip.blaze_burner.remaining"));
+			tooltip.add(Component.literal(remainingBurnTime / 20 + " " + Component.translatable("generic.unit.seconds").getString()));
             return true;
         }
 

@@ -21,7 +21,7 @@ public class TestGogglesTooltip {
 
     // Blaze Burner variables
     private static final BlockPos BURNER_POS = new BlockPos(1, 2, 1);
-    private static final int FUEL_DECAY_CHECK_SECONDS = 3;
+    private static final int PROGRESSION_CHECK_SECONDS = 3;
 
 
     // ===== Test Methods =====
@@ -91,7 +91,7 @@ public class TestGogglesTooltip {
         helper.succeed();
     }
 
-    @GameTest(template = "blaze_burner_normal", timeoutTicks = (FUEL_DECAY_CHECK_SECONDS + 2) * TICKS_PER_SECOND)
+    @GameTest(template = "blaze_burner_normal", timeoutTicks = (PROGRESSION_CHECK_SECONDS + 2) * TICKS_PER_SECOND)
     public static void normalFuelTooltipAndDecay(CreateGameTestHelper helper) {
         BlazeBurnerBlockEntity burner = getBurner(helper);
         String testType = "Blaze Burner Normal";
@@ -115,19 +115,30 @@ public class TestGogglesTooltip {
             "create.tooltip.blaze_burner.fuel_capacity",
             "create.tooltip.blaze_burner.remaining");
 
+        // Collect the initial burn time and tooltip text for later comparison
+        String initialTooltipText = collectTooltipText(tooltip);
         int initialBurnTime = burner.getRemainingBurnTime();
 
         // Wait for a few seconds and check if the burn time has decayed appropriately
-        helper.whenSecondsPassed(FUEL_DECAY_CHECK_SECONDS, () -> {
+        helper.whenSecondsPassed(PROGRESSION_CHECK_SECONDS, () -> {
             int decayed = initialBurnTime - burner.getRemainingBurnTime();
-            // We expect the burn time to have decayed by at least FUEL_DECAY_CHECK_SECONDS
+            // We expect the burn time to have decayed by at least PROGRESSION_CHECK_SECONDS
             // Subtracting 1 tick to account for any potential timing discrepancies in the test environment
             // Note: Burn time decays at 20 ticks per second, but this can be affected by the game's tick rate
-            int minExpected = FUEL_DECAY_CHECK_SECONDS * TICKS_PER_SECOND - 1;
+            int minExpected = PROGRESSION_CHECK_SECONDS * TICKS_PER_SECOND - 1;
 
             if (decayed < minExpected)
                 helper.fail(testType + ": Burn time decayed only " + decayed
                     + " ticks, when at least " + minExpected + " ticks were expected");
+
+            // Create a new tooltip after burn time decay and check if the text has updated accordingly
+            List<Component> updatedTooltip = new java.util.ArrayList<>();
+            burner.addToGoggleTooltip(updatedTooltip, false);
+            String updatedTooltipText = collectTooltipText(updatedTooltip);
+
+            if (initialTooltipText.equals(updatedTooltipText))
+                helper.fail(testType + ": Tooltip text did not update after burn time decay. Initial: \""
+                    + initialTooltipText + "\", Updated: \"" + updatedTooltipText + "\"");
 
             helper.succeed();
         });
