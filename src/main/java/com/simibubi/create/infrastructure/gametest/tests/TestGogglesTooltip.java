@@ -8,6 +8,9 @@ import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity.FuelType;
+import com.simibubi.create.content.redstone.diodes.PulseTimerBlockEntity;
+import com.simibubi.create.content.redstone.diodes.PulseRepeaterBlockEntity;
+import com.simibubi.create.content.redstone.diodes.PulseExtenderBlockEntity;
 import com.simibubi.create.infrastructure.gametest.CreateGameTestHelper;
 import com.simibubi.create.infrastructure.gametest.GameTestGroup;
 
@@ -19,13 +22,13 @@ import net.minecraft.network.chat.Component;
 public class TestGogglesTooltip {
     // ===== Test Variables =====
 
-    // Blaze Burner variables
-    private static final BlockPos BURNER_POS = new BlockPos(1, 2, 1);
     private static final int PROGRESSION_CHECK_SECONDS = 3;
+    private static final BlockPos BLOCK_POS = new BlockPos(1, 2, 1);
 
 
     // ===== Test Methods =====
 
+    // Blaze Burner Tooltip Tests
     @GameTest(template = "blaze_burner_empty")
     public static void noFuelTooltip(CreateGameTestHelper helper) {
         BlazeBurnerBlockEntity burner = getBurner(helper);
@@ -144,6 +147,103 @@ public class TestGogglesTooltip {
         });
     }
 
+    // Pulse Mechanism Tooltip Tests
+    @GameTest(template = "pulse_timer", timeoutTicks = (PROGRESSION_CHECK_SECONDS + 2) * TICKS_PER_SECOND)
+    public static void pulseTimerTooltip(CreateGameTestHelper helper) {
+        PulseTimerBlockEntity pulseTimer = helper.getBlockEntity(AllBlockEntityTypes.PULSE_TIMER.get(), BLOCK_POS);
+        String testType = "Pulse Timer";
+
+        // Create the tooltip and call the method addToGoggleTooltip to populate it
+        List<Component> tooltip = new java.util.ArrayList<>();
+        boolean result = pulseTimer.addToGoggleTooltip(tooltip, false);
+
+        // Assert that the tooltip contains the expected information for a pulse timer
+        assertTooltipContains(helper, tooltip, result, testType,
+            "create.tooltip.pulse_timer.header",
+            "create.tooltip.pulse.until_next_pulse");
+
+        // Collect the initial tooltip text for later comparison
+        String initialTooltipText = collectTooltipText(tooltip);
+
+        // Wait for a few seconds and check if the tooltip has updated to reflect the pulse timer's progression
+        helper.whenSecondsPassed(PROGRESSION_CHECK_SECONDS, () -> {
+            // Create a new tooltip after time has passed and check if the text has updated accordingly
+            List<Component> updatedTooltip = new java.util.ArrayList<>();
+            pulseTimer.addToGoggleTooltip(updatedTooltip, false);
+            String updatedTooltipText = collectTooltipText(updatedTooltip);
+
+            if (initialTooltipText.equals(updatedTooltipText))
+                helper.fail(testType + ": Tooltip text did not update after pulse timer progression. Initial: \""
+                    + initialTooltipText + "\", Updated: \"" + updatedTooltipText + "\"");
+
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "pulse_repeater", timeoutTicks = (PROGRESSION_CHECK_SECONDS + 2) * TICKS_PER_SECOND)
+    public static void pulseRepeaterTooltip(CreateGameTestHelper helper) {
+        PulseRepeaterBlockEntity pulseRepeater = helper.getBlockEntity(AllBlockEntityTypes.PULSE_REPEATER.get(), BLOCK_POS);
+        String testType = "Pulse Repeater";
+
+        // Create the tooltip and call the method addToGoggleTooltip to populate it
+        List<Component> tooltip = new java.util.ArrayList<>();
+        boolean result = pulseRepeater.addToGoggleTooltip(tooltip, false);
+
+        // Assert that the tooltip contains the expected information for a pulse repeater
+        assertTooltipContains(helper, tooltip, result, testType,
+            "create.tooltip.pulse_repeater.header",
+            "create.tooltip.pulse.until_next_pulse");
+
+        // Collect the initial tooltip text for later comparison
+        String initialTooltipText = collectTooltipText(tooltip);
+
+        // Wait for a few seconds and check if the tooltip has updated to reflect the pulse repeater's progression
+        helper.whenSecondsPassed(PROGRESSION_CHECK_SECONDS, () -> {
+            // Create a new tooltip after time has passed and check if the text has updated accordingly
+            List<Component> updatedTooltip = new java.util.ArrayList<>();
+            pulseRepeater.addToGoggleTooltip(updatedTooltip, false);
+            String updatedTooltipText = collectTooltipText(updatedTooltip);
+
+            if (initialTooltipText.equals(updatedTooltipText))
+                helper.fail(testType + ": Tooltip text did not update after pulse repeater progression. Initial: \""
+                    + initialTooltipText + "\", Updated: \"" + updatedTooltipText + "\"");
+
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "pulse_extender", timeoutTicks = (PROGRESSION_CHECK_SECONDS + 2) * TICKS_PER_SECOND)
+    public static void pulseExtenderTooltip(CreateGameTestHelper helper) {
+        PulseExtenderBlockEntity pulseExtender = helper.getBlockEntity(AllBlockEntityTypes.PULSE_EXTENDER.get(), BLOCK_POS);
+        String testType = "Pulse Extender";
+
+        // Create the tooltip and call the method addToGoggleTooltip to populate it
+        List<Component> tooltip = new java.util.ArrayList<>();
+        boolean result = pulseExtender.addToGoggleTooltip(tooltip, false);
+
+        // Assert that the tooltip contains the expected information for a pulse extender
+        assertTooltipContains(helper, tooltip, result, testType,
+            "create.tooltip.pulse_extender.header",
+            "create.tooltip.pulse_extender.remaining");
+
+        // Collect the initial tooltip text for later comparison
+        String initialTooltipText = collectTooltipText(tooltip);
+
+        // Wait for a few seconds and check if the tooltip has updated to reflect the pulse extender's progression
+        helper.whenSecondsPassed(PROGRESSION_CHECK_SECONDS, () -> {
+            // Create a new tooltip after time has passed and check if the text has updated accordingly
+            List<Component> updatedTooltip = new java.util.ArrayList<>();
+            pulseExtender.addToGoggleTooltip(updatedTooltip, false);
+            String updatedTooltipText = collectTooltipText(updatedTooltip);
+
+            if (initialTooltipText.equals(updatedTooltipText))
+                helper.fail(testType + ": Tooltip text did not update after pulse extender progression. Initial: \""
+                    + initialTooltipText + "\", Updated: \"" + updatedTooltipText + "\"");
+
+            helper.succeed();
+        });
+    }
+
 
     // ===== Helper Methods =====
 
@@ -181,6 +281,6 @@ public class TestGogglesTooltip {
     }
 
     private static BlazeBurnerBlockEntity getBurner(CreateGameTestHelper helper) {
-        return helper.getBlockEntity(AllBlockEntityTypes.HEATER.get(), BURNER_POS);
+        return helper.getBlockEntity(AllBlockEntityTypes.HEATER.get(), BLOCK_POS);
     }
 }
