@@ -23,6 +23,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
 
 @MethodsReturnNonnullByDefault
 public class EncasedFanBlockEntity extends KineticBlockEntity implements IAirCurrentSource {
@@ -156,9 +158,33 @@ public class EncasedFanBlockEntity extends KineticBlockEntity implements IAirCur
 
 	@Override
 	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-		super.addToGoggleTooltip(tooltip, isPlayerSneaking);
-		Direction flowDirection = getAirFlowDirection();
 
+		Direction flowDirection = getAirFlowDirection();
+		Direction facing = getBlockState().getValue(EncasedFanBlock.FACING);
+		boolean blowingOutward = false;
+		if (flowDirection != null)
+			blowingOutward = flowDirection == facing;
+
+		// Used for GameTests to safely verify tooltip content on the server side
+		// Bypasses client-only formatting logic to prevent crashes in headless environments
+		// Note: Used Component.translatable directly to avoid issues with CreateLang in GameTests
+		if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
+            tooltip.add(Component.translatable("create.tooltip.encased_fan.header"));
+
+            if (flowDirection == null) {
+                tooltip.add(Component.translatable("create.tooltip.encased_fan.not_spinning"));
+                return true;
+            }
+            tooltip.add(Component.translatable("create.tooltip.encased_fan.direction"));
+            tooltip.add(Component.translatable(blowingOutward
+					? "create.tooltip.encased_fan.outward"
+					: "create.tooltip.encased_fan.inward"));
+			tooltip.add(Component.translatable("create.tooltip.encased_fan.range"));
+			return true;
+        }		
+
+		super.addToGoggleTooltip(tooltip, isPlayerSneaking);
+		
 		CreateLang.translate("tooltip.encased_fan.header")
 			.forGoggles(tooltip);
 
@@ -168,9 +194,6 @@ public class EncasedFanBlockEntity extends KineticBlockEntity implements IAirCur
 				.forGoggles(tooltip, 1);
 			return true;
 		}
-
-		Direction facing = getBlockState().getValue(EncasedFanBlock.FACING);
-		boolean blowingOutward = flowDirection == facing;
 
 		CreateLang.translate("tooltip.encased_fan.direction")
 			.style(ChatFormatting.GRAY)

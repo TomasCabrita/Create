@@ -8,6 +8,7 @@ import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity.FuelType;
+import com.simibubi.create.content.kinetics.fan.EncasedFanBlockEntity;
 import com.simibubi.create.content.kinetics.motor.CreativeMotorBlockEntity;
 import com.simibubi.create.content.redstone.diodes.PulseTimerBlockEntity;
 import com.simibubi.create.content.redstone.diodes.PulseRepeaterBlockEntity;
@@ -26,7 +27,6 @@ public class TestGogglesTooltip {
 
     private static final int PROGRESSION_CHECK_SECONDS = 3;
     private static final BlockPos BLOCK_POS = new BlockPos(1, 2, 1);
-
 
     // ===== Test Methods =====
 
@@ -419,6 +419,73 @@ public class TestGogglesTooltip {
             if (fullText.contains(rotation))
                 helper.fail(testType + ": Tooltip should not contain rotation direction when cogwheel is stopped. Got tooltip: " + fullText);
 
+            helper.succeed();
+        });
+    }
+
+    // Encased Fan Tests
+    @GameTest(template = "encased_fan_stop")
+    public static void encasedFanStopToolTip(CreateGameTestHelper helper) {
+        EncasedFanBlockEntity fan = helper.getBlockEntity(AllBlockEntityTypes.ENCASED_FAN.get(), BLOCK_POS);
+        String testType = "Encased Fan Stop";
+
+        // Wait 1 second to ensure the shaft has started rotating before checking the tooltip
+        helper.whenSecondsPassed(1, () -> {
+            // Create the tooltip and call the method addToGoggleTooltip to populate it
+            List<Component> tooltip = new java.util.ArrayList<>();
+            boolean result = fan.addToGoggleTooltip(tooltip, false);
+
+            // Assert that the tooltip contains the expected information for a stopped encased fan
+            assertTooltipContains(helper, tooltip, result, testType,
+                "create.tooltip.encased_fan.header",
+                "create.tooltip.encased_fan.not_spinning");
+
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "encased_fan_inward")
+    public static void encasedFanInwardToolTip(CreateGameTestHelper helper) {
+        EncasedFanBlockEntity fan = helper.getBlockEntity(AllBlockEntityTypes.ENCASED_FAN.get(), BLOCK_POS);
+        String testType = "Encased Fan Inward";
+
+        // Wait 1 second to ensure the shaft has started rotating before checking the tooltip
+        helper.whenSecondsPassed(1, () -> {
+            // Create the tooltip and call the method addToGoggleTooltip to populate it
+            List<Component> tooltip = new java.util.ArrayList<>();
+            boolean result = fan.addToGoggleTooltip(tooltip, false);
+
+            //Assert that the tooltip contains the expected information for an encased fan that is blowing inwards
+            assertTooltipContains(helper, tooltip, result, testType,
+                "create.tooltip.encased_fan.header",
+                "create.tooltip.encased_fan.direction",
+                "create.tooltip.encased_fan.inward",
+                "create.tooltip.encased_fan.range"
+            );
+            
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "encased_fan_outward")
+    public static void encasedFanOutwardToolTip(CreateGameTestHelper helper) {
+        EncasedFanBlockEntity fan = helper.getBlockEntity(AllBlockEntityTypes.ENCASED_FAN.get(), BLOCK_POS);
+        String testType = "Encased Fan Outward";
+
+        // Wait 1 second to ensure the shaft has started rotating before checking the tooltip
+        helper.whenSecondsPassed(1, () -> {
+            // Create the tooltip and call the method addToGoggleTooltip to populate it
+            List<Component> tooltip = new java.util.ArrayList<>();
+            boolean result = fan.addToGoggleTooltip(tooltip, false);
+
+            // Assert that the tooltip contains the expected information for an encased fan that is blowing outwards
+            assertTooltipContains(helper, tooltip, result, testType,
+                "create.tooltip.encased_fan.header",
+                "create.tooltip.encased_fan.direction",
+                "create.tooltip.encased_fan.outward",
+                "create.tooltip.encased_fan.range"
+            );
+            
             helper.succeed();
         });
     }
