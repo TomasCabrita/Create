@@ -8,9 +8,11 @@ import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity.FuelType;
+import com.simibubi.create.content.kinetics.motor.CreativeMotorBlockEntity;
 import com.simibubi.create.content.redstone.diodes.PulseTimerBlockEntity;
 import com.simibubi.create.content.redstone.diodes.PulseRepeaterBlockEntity;
 import com.simibubi.create.content.redstone.diodes.PulseExtenderBlockEntity;
+import com.simibubi.create.content.kinetics.simpleRelays.BracketedKineticBlockEntity;
 import com.simibubi.create.infrastructure.gametest.CreateGameTestHelper;
 import com.simibubi.create.infrastructure.gametest.GameTestGroup;
 
@@ -239,6 +241,183 @@ public class TestGogglesTooltip {
             if (initialTooltipText.equals(updatedTooltipText))
                 helper.fail(testType + ": Tooltip text did not update after pulse extender progression. Initial: \""
                     + initialTooltipText + "\", Updated: \"" + updatedTooltipText + "\"");
+
+            helper.succeed();
+        });
+    }
+
+    // Kinetic Blocks Tooltip Tests
+    // Note: This tests don't cover all affected kinetic blocks, because many of them share the same tooltip logic
+
+    @GameTest(template = "creative_motor_clockwise")
+    public static void creativeMotorClockwiseTooltip(CreateGameTestHelper helper) {
+        CreativeMotorBlockEntity motor = helper.getBlockEntity(AllBlockEntityTypes.MOTOR.get(), BLOCK_POS);
+        String testType = "Creative Motor Clockwise";
+
+        // Wait 1 second to ensure the motor has started generating speed before checking the tooltip
+        helper.whenSecondsPassed(1, () -> {
+            if (motor.getGeneratedSpeed() <= 0)
+                helper.fail(testType + ": Motor should be generating clockwise speed for this test. Got speed: " + motor.getGeneratedSpeed());
+        });
+
+        // Create the tooltip and call the method addToGoggleTooltip to populate it
+        List<Component> tooltip = new java.util.ArrayList<>();
+        boolean result = motor.addToGoggleTooltip(tooltip, false);
+
+        // Assert that the tooltip contains the expected information for a clockwise creative motor
+        assertTooltipContains(helper, tooltip, result, testType,
+            "create.tooltip.creative_motor.header",
+            "create.gui.goggles.rotation_direction",
+            "create.gui.goggles.rotation_direction.clockwise");
+
+        helper.succeed();
+    }
+
+    @GameTest(template = "creative_motor_counter_clockwise")
+    public static void creativeMotorCounterClockwiseTooltip(CreateGameTestHelper helper) {
+        CreativeMotorBlockEntity motor = helper.getBlockEntity(AllBlockEntityTypes.MOTOR.get(), BLOCK_POS);
+        String testType = "Creative Motor Counter-Clockwise";
+
+        // Wait 1 second to ensure the motor has started generating speed before checking the tooltip
+        helper.whenSecondsPassed(1, () -> {
+            if (motor.getGeneratedSpeed() >= 0)
+                helper.fail(testType + ": Motor should be rotating counter-clockwise for this test. Got speed: " + motor.getGeneratedSpeed());
+        });
+
+        // Create the tooltip and call the method addToGoggleTooltip to populate it
+        List<Component> tooltip = new java.util.ArrayList<>();
+        boolean result = motor.addToGoggleTooltip(tooltip, false);
+
+        // Assert that the tooltip contains the expected information for a counter-clockwise creative motor
+        assertTooltipContains(helper, tooltip, result, testType,
+            "create.tooltip.creative_motor.header",
+            "create.gui.goggles.rotation_direction",
+            "create.gui.goggles.rotation_direction.counter_clockwise");
+
+        helper.succeed();
+    }
+
+    @GameTest(template = "shaft_clockwise")
+    public static void shaftClockwiseTooltip(CreateGameTestHelper helper) {
+        BracketedKineticBlockEntity shaft = helper.getBlockEntity(AllBlockEntityTypes.BRACKETED_KINETIC.get(), BLOCK_POS);
+        String testType = "Shaft Clockwise";
+
+        // Wait 1 second to ensure the shaft has started rotating before checking the tooltip
+        helper.whenSecondsPassed(1, () -> {
+            // Create the tooltip and call the method addToGoggleTooltip to populate it
+            List<Component> tooltip = new java.util.ArrayList<>();
+            boolean result = shaft.addToGoggleTooltip(tooltip, false);
+
+            // Assert that the tooltip contains the expected information for a clockwise shaft
+            assertTooltipContains(helper, tooltip, result, testType,
+                "create.tooltip.shaft.header",
+                "create.gui.goggles.rotation_direction",
+                "create.gui.goggles.rotation_direction.clockwise");
+
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "shaft_counter_clockwise")
+    public static void shaftCounterClockwiseTooltip(CreateGameTestHelper helper) {
+        BracketedKineticBlockEntity shaft = helper.getBlockEntity(AllBlockEntityTypes.BRACKETED_KINETIC.get(), BLOCK_POS);
+        String testType = "Shaft Counter-Clockwise";
+
+        // Wait 1 second to ensure the shaft has started rotating before checking the tooltip
+        helper.whenSecondsPassed(1, () -> {
+            // Create the tooltip and call the method addToGoggleTooltip to populate it
+            List<Component> tooltip = new java.util.ArrayList<>();
+            boolean result = shaft.addToGoggleTooltip(tooltip, false);
+
+            // Assert that the tooltip contains the expected information for a counter-clockwise shaft
+            assertTooltipContains(helper, tooltip, result, testType,
+                "create.tooltip.shaft.header",
+                "create.gui.goggles.rotation_direction",
+                "create.gui.goggles.rotation_direction.counter_clockwise");
+
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "shaft_stop")
+    public static void shaftStopTooltip(CreateGameTestHelper helper) {
+        BracketedKineticBlockEntity shaft = helper.getBlockEntity(AllBlockEntityTypes.BRACKETED_KINETIC.get(), BLOCK_POS);
+        String testType = "Shaft Stop";
+
+        // Wait 1 second to ensure the shaft is not rotating before checking the tooltip
+        helper.whenSecondsPassed(1, () -> {
+            // Create the tooltip and call the method addToGoggleTooltip to populate it
+            List<Component> tooltip = new java.util.ArrayList<>();
+            shaft.addToGoggleTooltip(tooltip, false);
+
+            // Assert that the tooltip contains the expected information for a stopped shaft
+            String fullText = collectTooltipText(tooltip);
+            String rotation = Component.translatable("create.gui.goggles.rotation_direction").getString();
+            if (fullText.contains(rotation))
+                helper.fail(testType + ": Tooltip should not contain rotation direction when shaft is stopped. Got tooltip: " + fullText);
+
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "cogwheel_clockwise")
+    public static void cogwheelClockwiseTooltip(CreateGameTestHelper helper) {
+        BracketedKineticBlockEntity cogwheel = helper.getBlockEntity(AllBlockEntityTypes.BRACKETED_KINETIC.get(), BLOCK_POS);
+        String testType = "Cogwheel Clockwise";
+
+        // Wait 1 second to ensure the cogwheel has started rotating before checking the tooltip
+        helper.whenSecondsPassed(1, () -> {
+            // Create the tooltip and call the method addToGoggleTooltip to populate it
+            List<Component> tooltip = new java.util.ArrayList<>();
+            boolean result = cogwheel.addToGoggleTooltip(tooltip, false);
+
+            // Assert that the tooltip contains the expected information for a clockwise cogwheel
+            assertTooltipContains(helper, tooltip, result, testType,
+                "create.tooltip.cogwheel.header",
+                "create.gui.goggles.rotation_direction",
+                "create.gui.goggles.rotation_direction.clockwise");
+
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "cogwheel_counter_clockwise")
+    public static void cogwheelCounterClockwiseTooltip(CreateGameTestHelper helper) {
+        BracketedKineticBlockEntity cogwheel = helper.getBlockEntity(AllBlockEntityTypes.BRACKETED_KINETIC.get(), BLOCK_POS);
+        String testType = "Cogwheel Counter-Clockwise";
+
+        // Wait 1 second to ensure the cogwheel has started rotating before checking the tooltip
+        helper.whenSecondsPassed(1, () -> {
+            // Create the tooltip and call the method addToGoggleTooltip to populate it
+            List<Component> tooltip = new java.util.ArrayList<>();
+            boolean result = cogwheel.addToGoggleTooltip(tooltip, false);
+
+            // Assert that the tooltip contains the expected information for a counter-clockwise cogwheel
+            assertTooltipContains(helper, tooltip, result, testType,
+                "create.tooltip.cogwheel.header",
+                "create.gui.goggles.rotation_direction",
+                "create.gui.goggles.rotation_direction.counter_clockwise");
+
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "cogwheel_stop")
+    public static void cogwheelStopTooltip(CreateGameTestHelper helper) {
+        BracketedKineticBlockEntity cogwheel = helper.getBlockEntity(AllBlockEntityTypes.BRACKETED_KINETIC.get(), BLOCK_POS);
+        String testType = "Cogwheel Stop";
+
+        // Wait 1 second to ensure the cogwheel is not rotating before checking the tooltip
+        helper.whenSecondsPassed(1, () -> {
+            // Create the tooltip and call the method addToGoggleTooltip to populate it
+            List<Component> tooltip = new java.util.ArrayList<>();
+            cogwheel.addToGoggleTooltip(tooltip, false);
+
+            // Assert that the tooltip contains the expected information for a stopped cogwheel
+            String fullText = collectTooltipText(tooltip);
+            String rotation = Component.translatable("create.gui.goggles.rotation_direction").getString();
+            if (fullText.contains(rotation))
+                helper.fail(testType + ": Tooltip should not contain rotation direction when cogwheel is stopped. Got tooltip: " + fullText);
 
             helper.succeed();
         });

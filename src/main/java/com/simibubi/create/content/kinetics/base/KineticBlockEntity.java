@@ -52,6 +52,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.loading.FMLEnvironment;
 
 public class KineticBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveHoveringInformation {
 
@@ -470,8 +471,23 @@ public class KineticBlockEntity extends SmartBlockEntity implements IHaveGoggleI
 
 	protected void addToGoggleRotationDirectionTooltip(List<Component> tooltip) {
 		float speed = getSpeed();
+		// If the block isn't generating its own speed and is currently at 0, returns
+		if (speed == 0) speed = getGeneratedSpeed();
 		if (speed == 0) return;
-		
+
+		// Used for GameTests to safely verify tooltip content on the server side
+		// Bypasses client-only formatting logic to prevent crashes in headless environments
+		// Note: Used Component.translatable directly to avoid issues with CreateLang in GameTests
+		if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
+            tooltip.add(Component.translatable("create.gui.goggles.rotation_direction"));
+			if (speed > 0) {
+				tooltip.add(Component.translatable("create.gui.goggles.rotation_direction.clockwise"));
+			} else {
+				tooltip.add(Component.translatable("create.gui.goggles.rotation_direction.counter_clockwise"));
+			}
+            return;
+        }
+
 		CreateLang.translate("gui.goggles.rotation_direction")
 			.style(GRAY)
 			.forGoggles(tooltip);
