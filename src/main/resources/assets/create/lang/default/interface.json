@@ -657,7 +657,6 @@
 	"create.tooltip.encased_fan.outward": "Outward",
 	"create.tooltip.encased_fan.inward": "Inward",
 	"create.tooltip.encased_fan.range": "Range",
-	"create.tooltip.encased_fan.blocks": "blocks",
 
 	"create.tooltip.speedRequirement": "Speed Requirement:",
 	"create.tooltip.speedRequirement.none": "None",
