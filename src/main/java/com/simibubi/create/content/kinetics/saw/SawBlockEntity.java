@@ -151,7 +151,7 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 	private boolean addFilterTooltip(List<Component> tooltip) {
 		// Get filter blocks and items
 		ItemStack filterStack = filtering == null ? ItemStack.EMPTY : filtering.getFilter();
-		// Verify if the basin has a filter
+		// Verify if the saw has a filter
 		if (filterStack.isEmpty())
 			return false;
 

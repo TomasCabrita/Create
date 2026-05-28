@@ -83,7 +83,7 @@ public class SmartChuteBlockEntity extends ChuteBlockEntity implements Clearable
 	private boolean addFilterTooltip(List<Component> tooltip) {
 		// Get filter blocks and items
 		ItemStack filterStack = filtering == null ? ItemStack.EMPTY : filtering.getFilter();
-		// Verify if the basin has a filter
+		// Verify if the smart chute has a filter
 		if (filterStack.isEmpty())
 			return false;
 
