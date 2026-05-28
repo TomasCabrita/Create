@@ -120,13 +120,10 @@ public class CreativeMotorBlockEntity extends GeneratingKineticBlockEntity {
 		// Bypasses client-only formatting logic to prevent crashes in headless environments
 		// Note: Used Component.translatable directly to avoid issues with CreateLang in GameTests
 		if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
-            tooltip.add(Component.translatable("create.tooltip.creative_motor.header"));
 			addToGoggleRotationDirectionTooltip(tooltip);
             return true;
         }
-
-		CreateLang.translate("tooltip.creative_motor.header")
-			.forGoggles(tooltip);
+		super.addToGoggleTooltip(tooltip, isPlayerSneaking);
 		addToGoggleRotationDirectionTooltip(tooltip);
 		return true;
 	}

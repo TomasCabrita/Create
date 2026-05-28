@@ -262,7 +262,6 @@ public class TestGogglesTooltip {
 
         // Assert that the tooltip contains the expected information for a clockwise creative motor
         assertTooltipContains(helper, tooltip, result, testType,
-            "create.tooltip.creative_motor.header",
             "create.gui.goggles.rotation_direction",
             "create.gui.goggles.rotation_direction.clockwise");
 
@@ -286,7 +285,6 @@ public class TestGogglesTooltip {
 
         // Assert that the tooltip contains the expected information for a counter-clockwise creative motor
         assertTooltipContains(helper, tooltip, result, testType,
-            "create.tooltip.creative_motor.header",
             "create.gui.goggles.rotation_direction",
             "create.gui.goggles.rotation_direction.counter_clockwise");
 
@@ -486,6 +484,7 @@ public class TestGogglesTooltip {
         });
     }
 
+    // Deployer Filter Tests
     @GameTest(template = "deployer_no_filter")
     public static void DeployerNoFilter(CreateGameTestHelper helper) {
         DeployerBlockEntity deployer = helper.getBlockEntity(AllBlockEntityTypes.DEPLOYER.get(), BLOCK_POS);
