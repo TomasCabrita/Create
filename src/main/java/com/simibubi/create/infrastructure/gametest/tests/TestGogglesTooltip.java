@@ -121,29 +121,24 @@ public class TestGogglesTooltip {
             "create.tooltip.blaze_burner.remaining");
 
         // Collect the initial burn time and tooltip text for later comparison
-        String initialTooltipText = collectTooltipText(tooltip);
         int initialBurnTime = burner.getRemainingBurnTime();
 
         // Wait for a few seconds and check if the burn time has decayed appropriately
         helper.whenSecondsPassed(PROGRESSION_CHECK_SECONDS, () -> {
-            int decayed = initialBurnTime - burner.getRemainingBurnTime();
-            // We expect the burn time to have decayed by at least PROGRESSION_CHECK_SECONDS
-            // Subtracting 1 tick to account for any potential timing discrepancies in the test environment
+            // We expect the burn time to have lowered PROGRESSION_CHECK_SECONDS
             // Note: Burn time decays at 20 ticks per second, but this can be affected by the game's tick rate
-            int minExpected = PROGRESSION_CHECK_SECONDS * TICKS_PER_SECOND - 1;
-
-            if (decayed < minExpected)
-                helper.fail(testType + ": Burn time decayed only " + decayed
-                    + " ticks, when at least " + minExpected + " ticks were expected");
-
             // Create a new tooltip after burn time decay and check if the text has updated accordingly
             List<Component> updatedTooltip = new java.util.ArrayList<>();
             burner.addToGoggleTooltip(updatedTooltip, false);
+
+            String expectedBurnTimeText = (initialBurnTime - PROGRESSION_CHECK_SECONDS * 20) / 20 + " " + Component.translatable("create.generic.unit.seconds").getString();
+
             String updatedTooltipText = collectTooltipText(updatedTooltip);
 
-            if (initialTooltipText.equals(updatedTooltipText))
-                helper.fail(testType + ": Tooltip text did not update after burn time decay. Initial: \""
-                    + initialTooltipText + "\", Updated: \"" + updatedTooltipText + "\"");
+            if (!updatedTooltipText.contains(expectedBurnTimeText)){
+                helper.fail(testType + ": Tooltip text did not update properly after delay. Expected: \""
+                    + expectedBurnTimeText + "\", Got: \"" + updatedTooltipText + "\"");
+            }       
 
             helper.succeed();
         });
