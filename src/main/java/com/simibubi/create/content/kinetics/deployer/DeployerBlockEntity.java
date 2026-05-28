@@ -533,7 +533,7 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 	private boolean addFilterTooltip(List<Component> tooltip) {
 		// Get filter blocks and items
 		ItemStack filterStack = filtering == null ? ItemStack.EMPTY : filtering.getFilter();
-		// Verify if the basin has a filter
+		// Verify if the deployer has a filter
 		if (filterStack.isEmpty())
 			return false;
 

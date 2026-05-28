@@ -722,10 +722,11 @@
   "create.tooltip.deployer.contains": "Item: %1$s x%2$s",
 
 	"create.tooltip.brass_funnel.header": "Brass Funel Information",
-
+	"create.tooltip.item_hatch.header": "Item Hatch Information",
 	"create.tooltip.mechanical_roller.header": "Mechanical Roller Information",
-
 	"create.tooltip.smart_fluid_pipe.header": "Smart Fluid Pipe Information",
+	"create.tooltip.smart_observer.header": "Smart Observer Information",
+	"create.tooltip.threshold_switch.header": "Threshold Switch Information",
 
 	"create.tooltip.brass_tunnel.contains": "Currently distributing:",
 	"create.tooltip.brass_tunnel.contains_entry": "> %1$s x%2$s",

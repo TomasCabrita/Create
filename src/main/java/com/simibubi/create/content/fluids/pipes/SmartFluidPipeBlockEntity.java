@@ -57,7 +57,7 @@ public class SmartFluidPipeBlockEntity extends SmartBlockEntity implements IHave
 			FluidPropagator.propagateChangedPipe(level, worldPosition, getBlockState());
 	}
 
-		@Override
+	@Override
 	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 		CreateLang.translate("tooltip.smart_fluid_pipe.header")
 			.forGoggles(tooltip);
@@ -73,7 +73,7 @@ public class SmartFluidPipeBlockEntity extends SmartBlockEntity implements IHave
 	private boolean addFilterTooltip(List<Component> tooltip) {
 		// Get filter blocks and items
 		ItemStack filterStack = filter == null ? ItemStack.EMPTY : filter.getFilter();
-		// Verify if the basin has a filter
+		// Verify if the smart fluid pipe has a filter
 		if (filterStack.isEmpty())
 			return false;
 

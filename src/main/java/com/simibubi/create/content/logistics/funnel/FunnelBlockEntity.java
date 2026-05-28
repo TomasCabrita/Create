@@ -389,7 +389,7 @@ public class FunnelBlockEntity extends SmartBlockEntity implements IHaveHovering
 	private boolean addFilterTooltip(List<Component> tooltip) {
 		// Get filter blocks and items
 		ItemStack filterStack = filtering == null ? ItemStack.EMPTY : filtering.getFilter();
-		// Verify if the basin has a filter
+		// Verify if the funnel has a filter
 		if (filterStack.isEmpty())
 			return false;
 
