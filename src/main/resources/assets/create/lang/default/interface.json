@@ -522,6 +522,8 @@
 	"create.materialChecklist": "Material Checklist",
 	"create.materialChecklist.blocksNotLoaded": "* Disclaimer *\n\nMaterial List may be inaccurate due to relevant chunks not being loaded.",
 
+	"create.gui.filter.empty": "Empty Filter",
+	"create.gui.filter.allow_item": "Allow Item",
 	"create.gui.filter.deny_list": "Deny-List",
 	"create.gui.filter.deny_list.description": "Items pass if they do NOT match any of the above. An empty Deny-List accepts everything.",
 	"create.gui.filter.allow_list": "Allow-List",
@@ -657,7 +659,6 @@
 	"create.tooltip.encased_fan.outward": "Outward",
 	"create.tooltip.encased_fan.inward": "Inward",
 	"create.tooltip.encased_fan.range": "Range",
-	"create.tooltip.encased_fan.blocks": "blocks",
 
 	"create.tooltip.speedRequirement": "Speed Requirement:",
 	"create.tooltip.speedRequirement.none": "None",
@@ -719,6 +720,12 @@
   "create.tooltip.deployer.using": "Mode: Use",
   "create.tooltip.deployer.punching": "Mode: Attack",
   "create.tooltip.deployer.contains": "Item: %1$s x%2$s",
+
+	"create.tooltip.brass_funnel.header": "Brass Funel Information",
+
+	"create.tooltip.mechanical_roller.header": "Mechanical Roller Information",
+
+	"create.tooltip.smart_fluid_pipe.header": "Smart Fluid Pipe Information",
 
 	"create.tooltip.brass_tunnel.contains": "Currently distributing:",
 	"create.tooltip.brass_tunnel.contains_entry": "> %1$s x%2$s",
