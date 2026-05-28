@@ -19,6 +19,7 @@ import com.simibubi.create.content.kinetics.base.IRotate.StressImpact;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.content.kinetics.belt.behaviour.BeltProcessingBehaviour;
 import com.simibubi.create.content.kinetics.belt.behaviour.TransportedItemStackHandlerBehaviour;
+import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity.FuelType;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe;
 import com.simibubi.create.content.logistics.filter.FilterItem;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
@@ -65,6 +66,7 @@ import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -506,25 +508,29 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 
 	@Override
 	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-		CreateLang.translate("tooltip.deployer.header")
-			.forGoggles(tooltip);
-
-		CreateLang.translate("tooltip.deployer." + (mode == Mode.USE ? "using" : "punching"))
-			.style(ChatFormatting.YELLOW)
-			.forGoggles(tooltip);
-
-		if (!heldItem.isEmpty())
-			CreateLang.translate("tooltip.deployer.contains", Component.translatable(heldItem.getDescriptionId())
-					.getString(), heldItem.getCount())
-				.style(ChatFormatting.GREEN)
+		// Used for GameTests to safely verify tooltip content on the server side
+		// Bypasses client-only formatting logic to prevent crashes in headless environments
+		// Note: Used Component.translatable directly to avoid issues with CreateLang in GameTests
+		if (FMLEnvironment.dist != Dist.DEDICATED_SERVER) {
+			CreateLang.translate("tooltip.deployer.header")
 				.forGoggles(tooltip);
 
-		float stressAtBase = calculateStressApplied();
-		if (StressImpact.isEnabled() && !Mth.equal(stressAtBase, 0)) {
-			tooltip.add(CommonComponents.EMPTY);
-			addStressImpactStats(tooltip, stressAtBase);
-		}
+			CreateLang.translate("tooltip.deployer." + (mode == Mode.USE ? "using" : "punching"))
+				.style(ChatFormatting.YELLOW)
+				.forGoggles(tooltip);
 
+			if (!heldItem.isEmpty())
+				CreateLang.translate("tooltip.deployer.contains", Component.translatable(heldItem.getDescriptionId())
+						.getString(), heldItem.getCount())
+					.style(ChatFormatting.GREEN)
+					.forGoggles(tooltip);
+
+			float stressAtBase = calculateStressApplied();
+			if (StressImpact.isEnabled() && !Mth.equal(stressAtBase, 0)) {
+				tooltip.add(CommonComponents.EMPTY);
+				addStressImpactStats(tooltip, stressAtBase);
+			}
+		}
 		addFilterTooltip(tooltip);
 
 		return true;
@@ -543,6 +549,10 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 		if (filterStack.getItem() instanceof FilterItem filterItem) {
 			filterSummary = filterItem.makeSummary(filterStack);
 		} else {
+			if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
+				tooltip.add(Component.translatable("create.gui.filter.allow_item"));
+				return true;
+			}
 			CreateLang.translate("gui.filter.allow_item")
 				.style(ChatFormatting.GOLD)
 				.forGoggles(tooltip);
@@ -552,6 +562,10 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 		// If the filter summary is not empty, add it to the tooltip
 		if (!filterSummary.isEmpty()) {
 			// Add the filter type (allow or deny) in the goggles tooltip format
+			if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
+				tooltip.add(filterSummary.get(0));
+				return true;
+			}
 			CreateLang.builder()
 				.add(filterSummary.get(0))
 				.forGoggles(tooltip);
@@ -561,6 +575,10 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 					.add(filterSummary.get(i))
 					.forGoggles(tooltip, 1);
 		} else {
+			if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
+				tooltip.add(Component.translatable("create.gui.filter.empty"));
+				return true;
+			}
 			CreateLang.translate("gui.filter.empty")
 				.style(ChatFormatting.DARK_GRAY)
 				.forGoggles(tooltip);

@@ -8,6 +8,7 @@ import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity.FuelType;
+import com.simibubi.create.content.kinetics.deployer.DeployerBlockEntity;
 import com.simibubi.create.content.kinetics.fan.EncasedFanBlockEntity;
 import com.simibubi.create.content.kinetics.motor.CreativeMotorBlockEntity;
 import com.simibubi.create.content.redstone.diodes.PulseTimerBlockEntity;
@@ -481,6 +482,79 @@ public class TestGogglesTooltip {
                 "create.tooltip.encased_fan.range"
             );
             
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "deployer_no_filter")
+    public static void DeployerNoFilter(CreateGameTestHelper helper) {
+        DeployerBlockEntity deployer = helper.getBlockEntity(AllBlockEntityTypes.DEPLOYER.get(), BLOCK_POS);
+        String testType = "Deployer No Filter";
+
+        // Wait 1 second to ensure the shaft has started rotating before checking the tooltip
+        helper.whenSecondsPassed(1, () -> {
+            // Create the tooltip and call the method addToGoggleTooltip to populate it
+            List<Component> tooltip = new java.util.ArrayList<>();
+            boolean result = deployer.addToGoggleTooltip(tooltip, false);
+
+            if (!result)
+                helper.fail(testType + ": addToGoggleTooltip() returned false");
+            if (!tooltip.isEmpty())
+                helper.fail(testType + ": tooltip should be empty");
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "deployer_single_item_filter")
+    public static void DeployerSingleItemFilter(CreateGameTestHelper helper) {
+        DeployerBlockEntity deployer = helper.getBlockEntity(AllBlockEntityTypes.DEPLOYER.get(), BLOCK_POS);
+        String testType = "Deployer Single Item Filter";
+
+        // Wait 1 second to ensure the shaft has started rotating before checking the tooltip
+        helper.whenSecondsPassed(1, () -> {
+            // Create the tooltip and call the method addToGoggleTooltip to populate it
+            List<Component> tooltip = new java.util.ArrayList<>();
+            boolean result = deployer.addToGoggleTooltip(tooltip, false);
+
+            assertTooltipContains(helper, tooltip, result, testType,
+                "create.gui.filter.allow_item");
+
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "deployer_empty_list_filter")
+    public static void DeployerEmptyListFilter(CreateGameTestHelper helper) {
+        DeployerBlockEntity deployer = helper.getBlockEntity(AllBlockEntityTypes.DEPLOYER.get(), BLOCK_POS);
+        String testType = "Deployer Empty List Filter";
+
+        // Wait 1 second to ensure the shaft has started rotating before checking the tooltip
+        helper.whenSecondsPassed(1, () -> {
+            // Create the tooltip and call the method addToGoggleTooltip to populate it
+            List<Component> tooltip = new java.util.ArrayList<>();
+            boolean result = deployer.addToGoggleTooltip(tooltip, false);
+
+            assertTooltipContains(helper, tooltip, result, testType,
+                "create.gui.filter.empty");
+
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "deployer_allow_item_list_filter")
+    public static void DeployerAllowItemListFilter(CreateGameTestHelper helper) {
+        DeployerBlockEntity deployer = helper.getBlockEntity(AllBlockEntityTypes.DEPLOYER.get(), BLOCK_POS);
+        String testType = "Deployer Allow Item List Filter";
+
+        // Wait 1 second to ensure the shaft has started rotating before checking the tooltip
+        helper.whenSecondsPassed(1, () -> {
+            // Create the tooltip and call the method addToGoggleTooltip to populate it
+            List<Component> tooltip = new java.util.ArrayList<>();
+            boolean result = deployer.addToGoggleTooltip(tooltip, false);
+
+            assertTooltipContains(helper, tooltip, result, testType,
+                "create.gui.filter.allow_list");
+
             helper.succeed();
         });
     }
